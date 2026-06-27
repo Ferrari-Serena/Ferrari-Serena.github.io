@@ -1,0 +1,32 @@
+# GitHub Pages 配置 — 标点符号练习
+title: 标点符号练习
+description: 标点符号练习网页版，支持手写标注和橡皮擦
+lang: zh-CN
+
+# URL 设置
+url: "https://ferrari-serena.github.io"
+baseurl: ""
+
+# 排除大文件，加快部署
+exclude:
+  - "tasks2/标点符号0624.pdf"
+  - "tasks2/server.js"
+  - "*.ps1"
+  - "*.docx"
+  - "*.txt"
+  - "*.json"
+
+# 默认编码
+encoding: utf-8
+
+# 不处理这些目录（静态文件直接复制）
+include:
+  - "tasks2"
+  - "tasks2/pages"
+
+# Markdown 设置（不影响现有 HTML）
+markdown: kramdown
+
+# 忽略的文件（Jekyll 不会处理）
+keep_files:
+  - "tasks2/pages"
