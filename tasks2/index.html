@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <title>标点符号练习 — 0624</title>
 <style>
 :root {
@@ -21,6 +21,10 @@
 body {
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
   background:var(--bg); color:var(--text); min-height:100vh;
+  touch-action: pan-x pan-y pinch-zoom;
+}
+body.drawing-active {
+  touch-action: none;
   user-select:none; -webkit-user-select:none;
 }
 
@@ -283,26 +287,59 @@ function attachDrawEvents(canvas, pageNum) {
 
   canvas.addEventListener('mousedown', e => {
     if (tool !== 'pen' && tool !== 'eraser') return;
+    document.body.classList.add('drawing-active');
     startStroke(pageNum, getPos(e));
   });
   canvas.addEventListener('mousemove', e => {
     if (!isDrawing) return;
     continueStroke(getPos(e));
   });
-  canvas.addEventListener('mouseup', () => endStroke(pageNum));
-  canvas.addEventListener('mouseleave', () => { if (isDrawing) endStroke(pageNum); });
+  canvas.addEventListener('mouseup', () => {
+    if (!isDrawing) return;
+    endStroke(pageNum);
+    document.body.classList.remove('drawing-active');
+  });
+  canvas.addEventListener('mouseleave', () => {
+    if (isDrawing) {
+      endStroke(pageNum);
+      document.body.classList.remove('drawing-active');
+    }
+  });
 
   canvas.addEventListener('touchstart', e => {
+    // Multi-touch (pinch-zoom): let browser handle it natively
+    if (e.touches.length > 1) return;
+    // Only intercept single touch when pen/eraser is active
     if (tool !== 'pen' && tool !== 'eraser') return;
     e.preventDefault();
+    document.body.classList.add('drawing-active');
     startStroke(pageNum, getPos(e.touches[0]));
   }, { passive: false });
+
   canvas.addEventListener('touchmove', e => {
+    // Multi-touch: let browser handle natively
+    if (e.touches.length > 1) {
+      if (isDrawing) endStroke(pageNum);
+      return;
+    }
     if (!isDrawing) return;
     e.preventDefault();
     continueStroke(getPos(e.touches[0]));
   }, { passive: false });
-  canvas.addEventListener('touchend', e => { e.preventDefault(); endStroke(pageNum); });
+
+  canvas.addEventListener('touchend', e => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    endStroke(pageNum);
+    document.body.classList.remove('drawing-active');
+  });
+
+  canvas.addEventListener('touchcancel', () => {
+    if (isDrawing) {
+      endStroke(pageNum);
+      document.body.classList.remove('drawing-active');
+    }
+  });
 }
 
 function startStroke(pageNum, pos) {
