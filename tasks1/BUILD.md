@@ -16,10 +16,11 @@ v1.0 - 完整可用版本 (532KB)
 ## 每次修改后的构建命令
 
 ```powershell
+cd tasks1
 node build_final.js
 ```
 
-然后在浏览器打开 `SAT-Vocabulary-Reader.html`
+然后双击 `tasks1\SAT-Vocabulary-Reader.html`
 
 ## 构建原则
 

@@ -1,6 +1,6 @@
 // PURE ASSEMBLY: no regex modifications, no code changes
 const fs = require('fs');
-process.chdir('d:\\睿谊的WPS\\Ferrariwork');
+process.chdir(__dirname);
 
 const chaptersHTML = fs.readFileSync('chapters_all.html', 'utf-8');
 const dictJSON = fs.readFileSync('merged_dict.json', 'utf-8');
