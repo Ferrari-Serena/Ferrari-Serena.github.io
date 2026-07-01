@@ -2,553 +2,266 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<title>标点符号练习 — 0624</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英语词汇学习 · Ferrariwork</title>
 <style>
-:root {
-  --bg: #e8ecf1;
-  --surface: #fff;
-  --text: #1a1a2e;
-  --text-secondary: #666;
-  --primary: #4f6ef7;
-  --border: #dce0e6;
-  --shadow: 0 2px 12px rgba(0,0,0,.08);
-  --toolbar-h: 60px;
-}
+  :root {
+    --bg: #0f0f1a;
+    --card: rgba(255,255,255,0.05);
+    --text: #e0e0e0;
+    --accent1: #667eea;
+    --accent2: #f5576c;
+    --green: #4cd964;
+  }
 
-*{margin:0;padding:0;box-sizing:border-box}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-  background:var(--bg); color:var(--text); min-height:100vh;
-  touch-action: pan-x pan-y pinch-zoom;
-}
-body.drawing-active {
-  touch-action: none;
-  user-select:none; -webkit-user-select:none;
-}
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
 
-/* ── Toolbar ── */
-#toolbar {
-  position:fixed; top:0; left:0; right:0; z-index:1000;
-  height:var(--toolbar-h); background:var(--surface);
-  border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:8px; padding:0 12px;
-  box-shadow:var(--shadow); flex-wrap:wrap;
-}
-#toolbar .brand { font-weight:700; font-size:1.05rem; color:var(--primary); white-space:nowrap; }
-#toolbar .sep { width:1px; height:28px; background:var(--border); margin:0 2px; }
+  /* ── 背景动画 ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(102,126,234,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(245,87,108,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(76,217,100,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
 
-.tbtn {
-  display:flex; align-items:center; gap:5px;
-  padding:7px 12px; border-radius:8px; border:1.5px solid var(--border);
-  background:var(--surface); color:var(--text); cursor:pointer;
-  font-size:0.85rem; font-weight:500; transition:all .15s; white-space:nowrap;
-}
-.tbtn svg { width:18px; height:18px; flex-shrink:0; }
-.tbtn:hover { background:#f4f5f9; border-color:#bcc0cc; }
-.tbtn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-.tbtn.active svg { stroke:#fff; }
+  /* ── 内容区 ── */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    width: 100%;
+  }
 
-#pageInfo { font-size:0.85rem; color:var(--text-secondary); min-width:72px; text-align:center; }
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
 
-.tgroup { display:flex; align-items:center; gap:4px; }
-.tgroup label { font-size:0.8rem; color:var(--text-secondary); white-space:nowrap; }
-#colorPicker { width:30px; height:30px; border:2px solid var(--border); border-radius:6px; cursor:pointer; padding:1px; }
-#lineWidth { width:56px; accent-color:var(--primary); }
+  header h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
 
-/* ── Main ── */
-#main {
-  margin-top:var(--toolbar-h); padding:16px;
-  display:flex; flex-direction:column; align-items:center; gap:16px;
-}
+  header p {
+    color: #888;
+    font-size: 0.95rem;
+  }
 
-.page-wrap {
-  position:relative; margin-bottom:16px;
-  box-shadow:0 4px 24px rgba(0,0,0,.1); border-radius:4px;
-  overflow:hidden; background:#fff; line-height:0;
-  min-height:200px; display:flex; align-items:center; justify-content:center;
-  color:#aaa; font-size:0.85rem;
-}
-.page-wrap img { display:block; width:100%; height:auto; }
-.page-wrap .draw-cv {
-  position:absolute; top:0; left:0;
-  cursor:default;
-  pointer-events:none; /* 默认不拦截，自由滑动；手写模式才开启 */
-}
+  /* ── 项目卡片 ── */
+  .projects {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 
-/* ── Toast ── */
-#toast {
-  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-  background:#1a1a2e; color:#fff; padding:10px 24px; border-radius:20px;
-  font-size:0.85rem; opacity:0; pointer-events:none;
-  transition:opacity .3s; z-index:2000;
-}
-#toast.show { opacity:1; }
+  .card {
+    display: flex;
+    gap: 20px;
+    padding: 24px 28px;
+    border-radius: 16px;
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s ease;
+    align-items: center;
+  }
 
-@media (max-width:768px) {
-  #toolbar { height:auto; padding:8px; gap:5px; }
-  #main { margin-top:120px; }
-  .tbtn { padding:6px 10px; font-size:0.8rem; }
-  .tbtn svg { width:15px; height:15px; }
-}
+  .card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .card-icon {
+    font-size: 2.6rem;
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .card-body { flex: 1; }
+
+  .card-body h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .card-body .desc {
+    font-size: 0.85rem;
+    color: #999;
+    line-height: 1.5;
+  }
+
+  .card-body .tech {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 6px;
+  }
+
+  .card-status {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .status-live {
+    background: rgba(76,217,100,0.15);
+    color: var(--green);
+    border: 1px solid rgba(76,217,100,0.25);
+  }
+
+  .status-off {
+    background: rgba(255,255,255,0.05);
+    color: #666;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ── 启动指引 ── */
+  .guide {
+    margin-top: 48px;
+    padding: 20px 24px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.85rem;
+    color: #777;
+    line-height: 1.8;
+  }
+
+  .guide code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    color: #aaa;
+  }
+
+  .guide a {
+    color: var(--accent1);
+    text-decoration: none;
+  }
+
+  .guide a:hover { text-decoration: underline; }
+
+  footer {
+    margin-top: 48px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #555;
+  }
 </style>
 </head>
 <body>
 
-<!-- ── TOOLBAR ── -->
-<div id="toolbar">
-  <span class="brand">📝 标点符号练习</span>
-  <span class="sep"></span>
+<div class="container">
+  <header>
+    <h1>📖 英语词汇学习</h1>
+    <p>基于 KyleBing/english-vocabulary 词库的两个交互式学习应用</p>
+  </header>
 
-  <button class="tbtn" id="btnPen" title="手写笔 (P)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-    </svg> 手写笔
-  </button>
-  <button class="tbtn" id="btnEraser" title="橡皮擦 (E)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.6 1.6c.8-.8 2-.8 2.8 0L21 5.2c.8.8.8 2 0 2.8L12 17"/>
-      <line x1="6" y1="20" x2="6" y2="17"/>
-    </svg> 橡皮擦
-  </button>
+  <div class="projects">
+    <!-- 蚕食 -->
+    <a class="card" href="http://localhost:2000" target="_blank">
+      <div class="card-icon">📚</div>
+      <div class="card-body">
+        <h2>蚕食单词</h2>
+        <p class="desc">词条概览视图 — 悬停发音、点击标记已知、右键查看释义。支持初中到 SAT 全部词库。</p>
+        <p class="tech">Vue 3 · Vite 4 · Pinia</p>
+      </div>
+      <span class="card-status status-live" id="status-canshi">● 运行中</span>
+    </a>
 
-  <span class="sep"></span>
-
-  <div class="tgroup">
-    <label>颜色</label>
-    <input type="color" id="colorPicker" value="#ff3333">
+    <!-- Word Wind -->
+    <a class="card" href="http://localhost:5173" target="_blank">
+      <div class="card-icon">🌬️</div>
+      <div class="card-body">
+        <h2>Word Wind</h2>
+        <p class="desc">单词卡片学习 — 音标发音、释义例句、生词本、选择题/填空测试。蚕食标记已学会。</p>
+        <p class="tech">React 19 · TypeScript · Vite 7 · Supabase</p>
+      </div>
+      <span class="card-status status-live" id="status-wordwind">● 运行中</span>
+    </a>
   </div>
-  <div class="tgroup">
-    <label>粗细</label>
-    <input type="range" id="lineWidth" min="1" max="12" value="3">
+
+  <div class="guide">
+    <strong>🚀 如何启动</strong><br><br>
+    <strong>蚕食单词</strong>（端口 2000）：<br>
+    <code>cd tasks2/vocabulary && npm run dev</code><br><br>
+    <strong>Word Wind</strong>（端口 5173）：<br>
+    <code>cd tasks2/word-wind && npm run dev</code><br><br>
+    源码仓库：
+    <a href="https://github.com/KyleBing/vocabulary" target="_blank">蚕食</a> ·
+    <a href="https://github.com/heygsc/word-wind" target="_blank">Word Wind</a> ·
+    <a href="https://github.com/KyleBing/english-vocabulary" target="_blank">词库数据</a>
   </div>
 
-  <span class="sep"></span>
-
-  <button class="tbtn" id="btnUndo" title="撤销 (Ctrl+Z)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="1 4 1 10 7 10"/><path d="M3.5 22A9.5 9.5 0 1 1 17 5"/>
-    </svg> 撤销
-  </button>
-  <button class="tbtn" id="btnClear" title="清除当前页">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-    </svg> 清除本页
-  </button>
-
-  <span class="sep"></span>
-
-  <button class="tbtn" id="btnPrev" title="上一页 (←)">◀</button>
-  <span id="pageInfo">1 / 67</span>
-  <button class="tbtn" id="btnNext" title="下一页 (→)">▶</button>
-
-  <span class="sep"></span>
-
-  <button class="tbtn" id="btnSave" title="导出标注为图片">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-      <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-    </svg> 导出
-  </button>
-
-  <span class="sep"></span>
-
-  <button class="tbtn" id="btnJumpTop" title="回到顶部">⬆ 顶部</button>
+  <footer>
+    Ferrariwork — 英语词汇学习工具集
+  </footer>
 </div>
 
-<!-- ── MAIN ── -->
-<div id="main"></div>
-
-<div id="toast"></div>
-
+<!-- 检测服务器状态 -->
 <script>
-// ═══════════════ STATE ═══════════════
-const TOTAL_PAGES = 67;
-let currentPage = 1;
-let tool = 'view'; // 'view' | 'pen' | 'eraser' — 默认浏览模式，不拦截滑动
-let penColor = '#ff3333';
-let lineWidth = 3;
-
-// Annotations per page
-let annotations = {};
-let undoStacks = {};
-
-// Drawing state
-let isDrawing = false;
-let curStroke = null;
-let curCtx = null;
-let curCanvas = null;
-
-// Store draw-canvas per page
-let drawCanvases = {};
-
-for (let i = 1; i <= TOTAL_PAGES; i++) {
-  annotations[i] = [];
-  undoStacks[i] = [];
-}
-
-// ═══════════════ DOM ═══════════════
-const $main = document.getElementById('main');
-const $pageInfo = document.getElementById('pageInfo');
-const $toast = document.getElementById('toast');
-const $btnPen = document.getElementById('btnPen');
-const $btnEraser = document.getElementById('btnEraser');
-const $colorPick = document.getElementById('colorPicker');
-const $lineW = document.getElementById('lineWidth');
-
-// ═══════════════ BUILD PAGES ═══════════════
-function padNum(n) { return String(n).padStart(2, '0'); }
-
-function buildAllPages() {
-  $main.innerHTML = '';
-  drawCanvases = {};
-
-  for (let i = 1; i <= TOTAL_PAGES; i++) {
-    const wrap = document.createElement('div');
-    wrap.className = 'page-wrap';
-    wrap.id = 'page-' + i;
-    wrap.dataset.page = i;
-
-    // Image (lazy loaded)
-    const img = document.createElement('img');
-    img.src = 'pages/page-' + padNum(i) + '.png';
-    img.alt = '第 ' + i + ' 页';
-    img.loading = 'lazy';
-
-    img.onload = function() {
-      const cv = drawCanvases[i];
-      if (cv) {
-        cv.width = img.naturalWidth;
-        cv.height = img.naturalHeight;
-        cv.style.width = img.naturalWidth + 'px';
-        cv.style.height = img.naturalHeight + 'px';
-        wrap.style.width = img.naturalWidth + 'px';
-        wrap.style.height = img.naturalHeight + 'px';
-        wrap.style.minHeight = 'auto';
-        redrawPage(i);
-      }
-    };
-
-    wrap.appendChild(img);
-
-    // Drawing canvas overlay
-    const cv = document.createElement('canvas');
-    cv.className = 'draw-cv';
-    cv.dataset.page = i;
-    cv.width = 800;
-    cv.height = 600;
-    cv.style.width = '800px';
-    cv.style.height = '600px';
-    wrap.appendChild(cv);
-
-    drawCanvases[i] = cv;
-    attachDrawEvents(cv, i);
-
-    wrap.style.minHeight = '300px';
-    wrap.style.width = '800px';
-    wrap.style.height = 'auto';
-
-    $main.appendChild(wrap);
+(async () => {
+  const checkPort = async (port) => {
+    try {
+      const res = await fetch(`http://localhost:${port}/`, { mode: 'no-cors' })
+      return true
+    } catch {
+      return false
+    }
   }
 
-  setupObservers();
-}
+  const canshiAlive = await checkPort(2000)
+  const wordwindAlive = await checkPort(5173)
 
-// ═══════════════ INTERSECTION OBSERVER ═══════════════
-function setupObservers() {
-  const observer = new IntersectionObserver((entries) => {
-    let best = null, bestRatio = 0;
-    for (const e of entries) {
-      if (e.intersectionRatio > bestRatio) {
-        bestRatio = e.intersectionRatio;
-        best = e.target;
-      }
-    }
-    if (best && bestRatio > 0.3) {
-      const p = parseInt(best.dataset.page);
-      if (!isNaN(p)) {
-        currentPage = p;
-        $pageInfo.textContent = p + ' / ' + TOTAL_PAGES;
-      }
-    }
-  }, { threshold: [0, 0.3, 0.5, 0.7, 1] });
-
-  document.querySelectorAll('.page-wrap').forEach(w => observer.observe(w));
-}
-
-// ═══════════════ DRAWING ═══════════════
-function attachDrawEvents(canvas, pageNum) {
-  const getPos = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: (e.clientX - rect.left) * (canvas.width / rect.width),
-      y: (e.clientY - rect.top) * (canvas.height / rect.height)
-    };
-  };
-
-  canvas.addEventListener('mousedown', e => {
-    if (tool !== 'pen' && tool !== 'eraser') return;
-    document.body.classList.add('drawing-active');
-    startStroke(pageNum, getPos(e));
-  });
-  canvas.addEventListener('mousemove', e => {
-    if (!isDrawing) return;
-    continueStroke(getPos(e));
-  });
-  canvas.addEventListener('mouseup', () => {
-    if (!isDrawing) return;
-    endStroke(pageNum);
-    document.body.classList.remove('drawing-active');
-  });
-  canvas.addEventListener('mouseleave', () => {
-    if (isDrawing) {
-      endStroke(pageNum);
-      document.body.classList.remove('drawing-active');
-    }
-  });
-
-  canvas.addEventListener('touchstart', e => {
-    // Multi-touch (pinch-zoom): let browser handle it natively
-    if (e.touches.length > 1) return;
-    // Only intercept single touch when pen/eraser is active
-    if (tool !== 'pen' && tool !== 'eraser') return;
-    e.preventDefault();
-    document.body.classList.add('drawing-active');
-    startStroke(pageNum, getPos(e.touches[0]));
-  }, { passive: false });
-
-  canvas.addEventListener('touchmove', e => {
-    // Multi-touch: let browser handle natively
-    if (e.touches.length > 1) {
-      if (isDrawing) endStroke(pageNum);
-      return;
-    }
-    if (!isDrawing) return;
-    e.preventDefault();
-    continueStroke(getPos(e.touches[0]));
-  }, { passive: false });
-
-  canvas.addEventListener('touchend', e => {
-    if (!isDrawing) return;
-    e.preventDefault();
-    endStroke(pageNum);
-    document.body.classList.remove('drawing-active');
-  });
-
-  canvas.addEventListener('touchcancel', () => {
-    if (isDrawing) {
-      endStroke(pageNum);
-      document.body.classList.remove('drawing-active');
-    }
-  });
-}
-
-function startStroke(pageNum, pos) {
-  isDrawing = true;
-  curStroke = {
-    points: [pos],
-    color: tool === 'eraser' ? '#FFFFFF' : penColor,
-    width: tool === 'eraser' ? lineWidth * 3 : lineWidth,
-    isEraser: tool === 'eraser'
-  };
-  curCanvas = drawCanvases[pageNum];
-  curCtx = curCanvas.getContext('2d');
-}
-
-function continueStroke(pos) {
-  if (!curStroke || !curCtx) return;
-  curStroke.points.push(pos);
-  const pts = curStroke.points;
-  if (pts.length < 2) return;
-
-  const ctx = curCtx;
-  ctx.save();
-  if (curStroke.isEraser) {
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.strokeStyle = 'rgba(0,0,0,1)';
-  } else {
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = curStroke.color;
-  }
-  ctx.lineWidth = curStroke.width;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.beginPath();
-  ctx.moveTo(pts[pts.length-2].x, pts[pts.length-2].y);
-  ctx.lineTo(pts[pts.length-1].x, pts[pts.length-1].y);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function endStroke(pageNum) {
-  if (!isDrawing) return;
-  isDrawing = false;
-  if (curStroke && curStroke.points.length > 0) {
-    annotations[pageNum].push(curStroke);
-    undoStacks[pageNum] = [];
-  }
-  curStroke = null;
-  curCanvas = null;
-  curCtx = null;
-}
-
-// ═══════════════ REDRAW / UNDO / CLEAR ═══════════════
-function redrawPage(pageNum) {
-  const cv = drawCanvases[pageNum];
-  if (!cv) return;
-  const ctx = cv.getContext('2d');
-  ctx.clearRect(0, 0, cv.width, cv.height);
-  for (const s of annotations[pageNum]) {
-    ctx.save();
-    if (s.isEraser) {
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.strokeStyle = 'rgba(0,0,0,1)';
+  const updateBadge = (id, alive) => {
+    const el = document.getElementById(id)
+    if (alive) {
+      el.textContent = '● 运行中'
+      el.className = 'card-status status-live'
     } else {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = s.color;
+      el.textContent = '○ 未启动'
+      el.className = 'card-status status-off'
     }
-    ctx.lineWidth = s.width;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    for (let i = 0; i < s.points.length; i++) {
-      if (i === 0) ctx.moveTo(s.points[i].x, s.points[i].y);
-      else ctx.lineTo(s.points[i].x, s.points[i].y);
-    }
-    ctx.stroke();
-    ctx.restore();
   }
-}
 
-function undoLastStroke(pageNum) {
-  const strokes = annotations[pageNum];
-  if (!strokes || strokes.length === 0) return;
-  undoStacks[pageNum].push(strokes.pop());
-  redrawPage(pageNum);
-}
-
-function clearPage(pageNum) {
-  if (!annotations[pageNum] || annotations[pageNum].length === 0) {
-    toast('本页没有标注');
-    return;
-  }
-  annotations[pageNum] = [];
-  undoStacks[pageNum] = [];
-  redrawPage(pageNum);
-  toast('已清除第 ' + pageNum + ' 页标注');
-}
-
-// ═══════════════ TOOLS ═══════════════
-function setTool(t) {
-  tool = t;
-  $btnPen.classList.toggle('active', t === 'pen');
-  $btnEraser.classList.toggle('active', t === 'eraser');
-  Object.values(drawCanvases).forEach(c => {
-    if (t === 'view') {
-      c.style.cursor = 'default';
-      c.style.pointerEvents = 'none'; // 让触摸/点击穿透到下层，自由滑动
-    } else {
-      c.style.cursor = t === 'eraser' ? 'cell' : 'crosshair';
-      c.style.pointerEvents = 'auto';
-    }
-  });
-  if (t === 'view') {
-    document.body.classList.remove('drawing-active');
-  }
-}
-
-// ═══════════════ NAVIGATION ═══════════════
-function scrollToPage(num) {
-  const el = document.getElementById('page-' + num);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ═══════════════ EXPORT ═══════════════
-async function exportAnnotated() {
-  const hasAny = Object.values(annotations).some(a => a.length > 0);
-  if (!hasAny) { toast('没有标注可导出'); return; }
-
-  toast('正在导出…');
-  for (let p = 1; p <= TOTAL_PAGES; p++) {
-    if (annotations[p].length === 0) continue;
-
-    const wrap = document.getElementById('page-' + p);
-    const img = wrap.querySelector('img');
-    const cv = drawCanvases[p];
-    if (!img || !cv || !img.complete) continue;
-
-    const merged = document.createElement('canvas');
-    merged.width = cv.width;
-    merged.height = cv.height;
-    const mc = merged.getContext('2d');
-    mc.drawImage(img, 0, 0, merged.width, merged.height);
-    mc.drawImage(cv, 0, 0);
-
-    const a = document.createElement('a');
-    a.download = '标点符号0624_第' + p + '页.png';
-    a.href = merged.toDataURL('image/png');
-    a.click();
-    await new Promise(r => setTimeout(r, 300));
-  }
-  toast('导出完成！');
-}
-
-// ═══════════════ TOAST ═══════════════
-let toastTimer;
-function toast(msg) {
-  $toast.textContent = msg; $toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => $toast.classList.remove('show'), 1800);
-}
-
-// ═══════════════ EVENT BINDINGS ═══════════════
-$btnPen.addEventListener('click', () => setTool('pen'));
-$btnEraser.addEventListener('click', () => setTool('eraser'));
-$colorPick.addEventListener('input', () => { penColor = $colorPick.value; });
-$lineW.addEventListener('input', () => { lineWidth = parseInt($lineW.value); });
-
-document.getElementById('btnPrev').addEventListener('click', () => {
-  if (currentPage > 1) { currentPage--; $pageInfo.textContent = currentPage + ' / ' + TOTAL_PAGES; scrollToPage(currentPage); }
-});
-document.getElementById('btnNext').addEventListener('click', () => {
-  if (currentPage < TOTAL_PAGES) { currentPage++; $pageInfo.textContent = currentPage + ' / ' + TOTAL_PAGES; scrollToPage(currentPage); }
-});
-document.getElementById('btnUndo').addEventListener('click', () => undoLastStroke(currentPage));
-document.getElementById('btnClear').addEventListener('click', () => clearPage(currentPage));
-document.getElementById('btnSave').addEventListener('click', exportAnnotated);
-document.getElementById('btnJumpTop').addEventListener('click', () => {
-  scrollToPage(1); currentPage = 1; $pageInfo.textContent = '1 / ' + TOTAL_PAGES;
-});
-
-// ═══════════════ KEYBOARD ═══════════════
-document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
-  switch (e.key.toLowerCase()) {
-    case 'p': setTool('pen'); toast('手写笔模式'); break;
-    case 'e': setTool('eraser'); toast('橡皮擦模式'); break;
-    case 'arrowleft':
-      e.preventDefault();
-      if (currentPage > 1) { currentPage--; $pageInfo.textContent = currentPage + ' / ' + TOTAL_PAGES; scrollToPage(currentPage); }
-      break;
-    case 'arrowright':
-      e.preventDefault();
-      if (currentPage < TOTAL_PAGES) { currentPage++; $pageInfo.textContent = currentPage + ' / ' + TOTAL_PAGES; scrollToPage(currentPage); }
-      break;
-    case 'z':
-      if (e.ctrlKey || e.metaKey) { e.preventDefault(); undoLastStroke(currentPage); }
-      break;
-    case 'delete':
-      if (e.shiftKey) { e.preventDefault(); clearPage(currentPage); }
-      break;
-  }
-});
-
-// ═══════════════ INIT ═══════════════
-buildAllPages();
-console.log('✅ 标点符号练习网页已就绪');
-console.log('   手写笔: P | 橡皮擦: E | 撤销: Ctrl+Z | 翻页: ← →');
-console.log('   共 ' + TOTAL_PAGES + ' 页，图片懒加载');
+  updateBadge('status-canshi', canshiAlive)
+  updateBadge('status-wordwind', wordwindAlive)
+})()
 </script>
+
 </body>
 </html>
