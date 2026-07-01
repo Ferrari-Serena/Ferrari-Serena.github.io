@@ -1,4 +1,69 @@
-﻿// ============ SAT Vocabulary Reader - Application Code ============
+﻿/* ===== CloudBase 初始化 START ===== */
+let cloudReady = false;
+let app, db, authOk = false;
+try {
+  if (typeof cloudbase !== 'undefined') {
+    app = cloudbase.init({env:'ferrari-d8gusxzk6b74a91a3'});
+    db = app.database();
+    cloudReady = true;
+    // Auth immediately
+    const auth = app.auth({persistence:'local'});
+    auth.signInAnonymously().then(() => {
+      authOk = true;
+      updateCloudStatus('#4caf50','已连接');
+      console.log('CloudBase: init + auth OK');
+    }).catch(e => {
+      updateCloudStatus('#ff9800','登录失败');
+      console.log('CloudBase: auth failed', e);
+    });
+  } else {
+    updateCloudStatus('#f44336','SDK未加载');
+  }
+} catch(e) { updateCloudStatus('#f44336','初始化失败'); }
+
+function updateCloudStatus(color, tip) {
+  const el = document.getElementById('cloud-status');
+  if (el) { el.style.color = color; el.title = '云同步: ' + tip; }
+}
+
+async function ensureAuth() {
+  if (!cloudReady) return false;
+  if (authOk) return true;
+  try {
+    const auth = app.auth({persistence:'local'});
+    await auth.signInAnonymously();
+    authOk = true;
+    return true;
+  } catch(e) { return false; }
+}
+
+async function saveWordsToCloud(wordsArr) {
+  if (!await ensureAuth()) return;
+  try {
+    const result = await db.collection('wordbooks').add({
+      words: wordsArr,
+      updateTime: new Date()
+    });
+    updateCloudStatus('#4caf50','已同步');
+  } catch(e) { updateCloudStatus('#ff9800','保存失败'); }
+}
+
+async function loadWordsFromCloud() {
+  if (!await ensureAuth()) { updateCloudStatus('#ff9800','未登录'); return []; }
+  try {
+    const res = await db.collection('wordbooks')
+      .orderBy('updateTime', 'desc')
+      .limit(1)
+      .get();
+    if (res.data && res.data.length > 0 && res.data[0].words) {
+      updateCloudStatus('#4caf50','已同步');
+      return res.data[0].words;
+    }
+    updateCloudStatus('#2196f3','云端暂无数据');
+    return [];
+  } catch(e) { updateCloudStatus('#ff9800','读取失败'); return []; }
+}
+/* ===== CloudBase 初始化 END ===== */// ============ SAT Vocabulary Reader - Application Code ============
 (function() {
 'use strict';
 
@@ -71,7 +136,7 @@ class SRSManager{
 class WordBank{
   constructor(storageKey='sat_wordbank_v2'){this.key=storageKey;this.srs=new SRSManager();this.data=this._load()}
   _load(){try{const raw=localStorage.getItem(this.key);if(raw){const d=JSON.parse(raw);if(d.version===2)return d}}catch(e){}return{version:2,words:{},settings:{defaultQuizSize:20,autoPronounce:false,fontSize:'medium'}}}
-  _save(){try{localStorage.setItem(this.key,JSON.stringify(this.data))}catch(e){}}
+  _save(){try{localStorage.setItem(this.key,JSON.stringify(this.data));saveWordsToCloud(Object.values(this.data.words))}catch(e){}}
   add(word,chapterId){const w=word.toLowerCase();if(this.data.words[w])return false;const srs=this.srs.getDefaultSRS();srs.firstSeenChapter=chapterId;this.data.words[w]=srs;this._save();return true}
   remove(word){const w=word.toLowerCase();if(!this.data.words[w])return false;delete this.data.words[w];this._save();return true}
   isSaved(word){return!!this.data.words[word.toLowerCase()]}
@@ -100,7 +165,7 @@ class QuizEngine{
 class UIManager{
   constructor(){this.view='reading';this.currentPopupWord=null;this.recManager=null;UIManager.instance=this}
   init(cm,dict,speech,wb,quiz,recManager){this.cm=cm;this.dict=dict;this.speech=speech;this.wb=wb;this.quiz=quiz;this.recManager=recManager;this._buildShell();this._bindEvents();this.showView('reading');if(cm.chapters.length>0)cm.setCurrent(cm.chapters[0].id)}
-  _buildShell(){const app=$('#app');app.innerHTML='<nav id="top-nav"><span class="logo">SAT 词汇阅读器</span><button data-view="reading" class="active">&#128218; 阅读</button><button data-view="wordbank">&#128221; 生词本 <span class="badge" id="wb-badge">0</span></button><button data-view="quiz">&#128203; 测验</button><button data-view="flashcard">&#127903; 单词卡片</button></nav><div id="main-content"><div id="view-reading" class="view active"></div><div id="view-wordbank" class="view"></div><div id="view-quiz" class="view"></div><div id="view-flashcard" class="view"></div></div>'}
+  _buildShell(){const app=$('#app');app.innerHTML='<nav id="top-nav"><span class="logo">SAT 词汇阅读器</span><span id="cloud-status" style="font-size:10px;margin-left:4px" title="云同步状态">&#9898;</span><button data-view="reading" class="active">&#128218; 阅读</button><button data-view="wordbank">&#128221; 生词本 <span class="badge" id="wb-badge">0</span></button><button data-view="quiz">&#128203; 测验</button><button data-view="flashcard">&#127903; 单词卡片</button></nav><div id="main-content"><div id="view-reading" class="view active"></div><div id="view-wordbank" class="view"></div><div id="view-quiz" class="view"></div><div id="view-flashcard" class="view"></div></div>'}
   _bindEvents(){$$('#top-nav button[data-view]').forEach(btn=>{btn.addEventListener('click',()=>this.showView(btn.dataset.view))});$('#popup-overlay').addEventListener('click',(e)=>{if(e.target===$('#popup-overlay'))this.hidePopup()});document.addEventListener('keydown',(e)=>{if(e.key==='Escape')this.hidePopup()})}
   showView(name){this.view=name;$$$('.view').forEach(v=>v.classList.remove('active'));$$$('#top-nav button[data-view]').forEach(b=>b.classList.remove('active'));const viewEl=$('#view-'+name);if(viewEl)viewEl.classList.add('active');const navBtn=$('#top-nav button[data-view="'+name+'"]');if(navBtn)navBtn.classList.add('active');if(name==='reading')this.renderReadingView();else if(name==='wordbank')this.renderWordBankView();else if(name==='quiz')this.renderQuizSetup();else if(name==='flashcard')this.renderFlashcardView(this.flashcardWord||null);this.updateBadge()}
   updateBadge(){const badge=$('#wb-badge');if(badge)badge.textContent=this.wb.getCount()}
@@ -133,7 +198,7 @@ class UIManager{
   showToast(message,type='info',duration=3000){const container=$('#toast-container');const toast=document.createElement('div');toast.className='toast '+type;toast.textContent=message;container.appendChild(toast);setTimeout(()=>{toast.remove()},duration)}
 }
 
-document.addEventListener('DOMContentLoaded',async()=>{const dict=new Dictionary(DICTIONARY_RAW);const cm=new ChapterManager($('#chapter-content'));const speech=new SpeechService();const recManager=new RecordingManager();const wb=new WordBank();const quiz=new QuizEngine(dict,wb,cm);const ui=new UIManager();await Promise.all([speech.init(),recManager._ready()]);ui.init(cm,dict,speech,wb,quiz,recManager);console.log('SAT Vocabulary Reader: '+cm.getChapterCount()+' chapters, '+dict.size()+' dict entries, '+wb.getCount()+' words in bank')})})();
+document.addEventListener('DOMContentLoaded',async()=>{const dict=new Dictionary(DICTIONARY_RAW);const cm=new ChapterManager($('#chapter-content'));const speech=new SpeechService();const recManager=new RecordingManager();const wb=new WordBank();const quiz=new QuizEngine(dict,wb,cm);const ui=new UIManager();await Promise.all([speech.init(),recManager._ready()]);const cloudWords=await loadWordsFromCloud();if(cloudWords.length>0){cloudWords.forEach(w=>{if(!wb.data.words[w.word]){wb.data.words[w.word]=w}});wb._save();updateCloudStatus('#4caf50','已同步'+cloudWords.length+'词');console.log('CloudBase: merged '+cloudWords.length+' words from cloud')}ui.init(cm,dict,speech,wb,quiz,recManager);console.log('SAT Vocabulary Reader: '+cm.getChapterCount()+' chapters, '+dict.size()+' dict entries, '+wb.getCount()+' words in bank')})})();
 
 
 
