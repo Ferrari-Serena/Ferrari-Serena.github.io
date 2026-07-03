@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import styled from 'styled-components'
 import type { UnknownWord, TestQuestion } from '../types'
 import { generateMultipleChoiceQuestions, generateFillBlankQuestions } from '../utils/testGenerator'
