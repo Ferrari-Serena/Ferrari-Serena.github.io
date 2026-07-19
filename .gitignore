@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# my-reader: independent git repo
+my-reader/
+
+# Dialektik Flutter web build (not tracked)
+Dialektik/
+Dialektik_web_v0.1.0.zip
+
+# tasks1 transient files
+tasks1/The Lightning Thief*.pdf
+tasks1/lightning_wordlist.json
+tasks1/tts-diagnose.html
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment
+.env
+.env.local
+
+# OS
+Thumbs.db
+.DS_Store

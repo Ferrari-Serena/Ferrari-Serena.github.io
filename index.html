@@ -3,12 +3,134 @@
 <head>
   <meta charset="utf-8">
   <title>Ferrariwork 项目入口</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(102,126,234,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(245,87,108,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #667eea, #f5576c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: #888; margin-bottom: 36px; font-size: 0.9rem; }
+
+    .warning {
+      background: rgba(255,193,7,0.08);
+      border: 1px solid rgba(255,193,7,0.25);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      text-align: left;
+      line-height: 1.7;
+      font-size: 0.88rem;
+    }
+    .warning strong { color: #ffc107; }
+    .warning code {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #fff;
+    }
+
+    .cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .card {
+      display: block;
+      padding: 20px 24px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-decoration: none;
+      color: #e0e0e0;
+      transition: all 0.25s;
+      text-align: left;
+    }
+    .card:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(255,255,255,0.18);
+      transform: translateY(-1px);
+    }
+    .card h2 { font-size: 1.15rem; margin-bottom: 4px; }
+    .card p  { font-size: 0.8rem; color: #888; }
+
+    .ready .warning { display: none; }
+    .ready .card { pointer-events: auto; opacity: 1; }
+
+    footer { margin-top: 32px; font-size: 0.75rem; color: #555; }
+  </style>
 </head>
 <body>
-  <h1>Ferrariwork 项目入口</h1>
-  <ul>
-    <li><a href="tasks1/">项目 tasks1</a></li>
-    <li><a href="tasks2/">项目 tasks2</a></li>
-  </ul>
+
+<div class="container" id="app">
+  <h1>Ferrariwork</h1>
+  <p class="subtitle">英语词汇学习 — SAT 阅读器 · 蚕食单词 · Word Wind</p>
+
+  <div class="warning" id="warn-file">
+    <strong>&#9888; 检测到你直接用文件协议打开了此页面</strong><br><br>
+    项目中的应用使用了 ES 模块，浏览器<strong>不允许</strong>通过 <code>file://</code> 直接打开。<br><br>
+    <strong>请先启动本地服务器：</strong><br>
+    <code>node server.js</code><br><br>
+    然后访问 &rarr; <a href="http://localhost:5173" style="color:#667eea">http://localhost:5173</a>
+  </div>
+
+  <div class="warning" id="warn-server" style="display:none; border-color: rgba(76,217,100,0.25); background: rgba(76,217,100,0.06);">
+    <strong style="color:#4cd964;">&#10003; 服务器运行中</strong><br>
+    以下项目均可正常访问：
+  </div>
+
+  <div class="cards">
+    <a class="card" href="tasks1/">
+      <h2>&#128214; tasks1 &mdash; SAT 词汇阅读器</h2>
+      <p>沉浸式阅读《被看见的恐惧》，边读边学 SAT 词汇</p>
+    </a>
+    <a class="card" href="tasks2/">
+      <h2>&#127891; tasks2 &mdash; 英语词汇学习</h2>
+      <p>蚕食单词 + Word Wind &mdash; 词库概览、闪卡、测验</p>
+    </a>
+  </div>
+
+  <footer>
+    <a href="https://github.com/Ferrari-Serena/Ferrari-Serena.github.io" style="color:#555">GitHub</a>
+  </footer>
+</div>
+
+<script>
+// 检测是否通过 HTTP 服务器访问（而非 file://）
+if (location.protocol === 'http:' || location.protocol === 'https:') {
+  document.getElementById('warn-file').style.display = 'none';
+  document.getElementById('warn-server').style.display = 'block';
+  document.getElementById('app').classList.add('ready');
+}
+</script>
+
 </body>
 </html>
