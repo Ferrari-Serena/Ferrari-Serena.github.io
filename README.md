@@ -7,7 +7,7 @@ Ferrariwork 的根导航仓库，只负责展示各子项目入口。各项目�
 | 项目 | 线上地址 | 仓库 |
 |---|---|---|
 | SAT 词汇阅读器 | https://mytest.ferrari11.com | `Ferrari-Serena/mytest` |
-| 英语词汇学习（蚕食单词 + Word Wind） | https://vocab.ferrari11.com | `Ferrari-Serena/myvocab` |
+| 英语词汇学习（蚕食单词 + Word Wind） | https://myvocab.ferrari11.com | `Ferrari-Serena/myvocab` |
 | my-reader 阅读器 | https://my-reader.ferrari11.com | `my-reader/`（本地） |
 | CRF 问题网络 | https://crf.ferrari11.com | `Ferrari-Serena/crf-question-network` |
 
