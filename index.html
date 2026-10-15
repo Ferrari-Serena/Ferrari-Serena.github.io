@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ferrariwork 项目导航</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(102,126,234,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(245,87,108,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #667eea, #f5576c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: #888; margin-bottom: 36px; font-size: 0.9rem; }
+    .cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .card {
+      display: block;
+      padding: 20px 24px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-decoration: none;
+      color: #e0e0e0;
+      transition: all 0.25s;
+      text-align: left;
+    }
+    .card:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(255,255,255,0.18);
+      transform: translateY(-1px);
+    }
+    .card h2 { font-size: 1.15rem; margin-bottom: 4px; }
+    .card p  { font-size: 0.8rem; color: #888; }
+    footer { margin-top: 32px; font-size: 0.75rem; color: #555; }
+    footer a { color: #555; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ferrariwork</h1>
+    <p class="subtitle">项目导航</p>
+
+    <div class="cards">
+      <a class="card" href="https://mytest.ferrari11.com">
+        <h2>📖 SAT 词汇阅读器</h2>
+        <p>沉浸式阅读《被看见的恐惧》，边读边学 SAT 词汇</p>
+      </a>
+      <a class="card" href="https://myvocab.ferrari11.com">
+        <h2>📚 英语词汇学习</h2>
+        <p>蚕食单词 + Word Wind：词库概览、闪卡、测试</p>
+      </a>
+      <a class="card" href="https://my-reader.ferrari11.com">
+        <h2>📖 my-reader 阅读器</h2>
+        <p>图片 PDF 阅读模式，点击单词发音</p>
+      </a>
+      <a class="card" href="https://crf.ferrari11.com">
+        <h2>🔗 CRF 问题网络</h2>
+        <p>CRF 可视化问题网络</p>
+      </a>
+    </div>
+
+    <footer>
+      <a href="https://github.com/Ferrari-Serena/Ferrari-Serena.github.io">GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>
